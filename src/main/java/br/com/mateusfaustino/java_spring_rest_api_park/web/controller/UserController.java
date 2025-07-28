@@ -2,15 +2,15 @@ package br.com.mateusfaustino.java_spring_rest_api_park.web.controller;
 
 import br.com.mateusfaustino.java_spring_rest_api_park.entity.User;
 import br.com.mateusfaustino.java_spring_rest_api_park.service.UserService;
+import br.com.mateusfaustino.java_spring_rest_api_park.web.dto.UserCreateDto;
+import br.com.mateusfaustino.java_spring_rest_api_park.web.dto.UserResponseDto;
+import br.com.mateusfaustino.java_spring_rest_api_park.web.dto.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -19,10 +19,10 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<User> create(@RequestBody User user) {
-        User newUser = userService.save(user);
+    public ResponseEntity<UserResponseDto> create(@RequestBody UserCreateDto userCreateDto) {
+        User newUser = userService.save(UserMapper.toUser(userCreateDto));
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(newUser));
     }
 
     @GetMapping("/{id}")
@@ -30,5 +30,18 @@ public class UserController {
         User newUser = userService.getById(id);
 
         return ResponseEntity.ok(newUser);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<User> updatePassword(@RequestBody User userBody, @PathVariable Long id) {
+        User user = userService.updatePassword(id, userBody.getPassword());
+
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping
+    public ResponseEntity <List<User>> getAll() {
+        List <User> users = userService.getAll();
+        return ResponseEntity.ok(users);
     }
 }
